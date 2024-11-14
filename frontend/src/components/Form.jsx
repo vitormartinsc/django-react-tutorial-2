@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constans";
+import '../styles/Form.css'
 
 function Form({ route, method }) {
     const [username, setUsername] = useState('')
@@ -10,8 +11,24 @@ function Form({ route, method }) {
     const navigate = useNavigate()
     const name = method === 'login' ? "Login" : "Register"
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
+    const handleSubmit = async (e) => {
+        setLoading(true);
+        e.preventDefault();
+        try {
+            const res = await api.post(route, { username, password });
+            if (method === 'login') {
+                localStorage.setItem(ACCESS_TOKEN, res.data.access);
+                localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+                console.log(res)
+                navigate('/')
+            } else {
+                navigate('/login')
+            }
+        } catch (error) {
+            alert(error)
+        } finally {
+            setLoading(false)
+        }
     }
 
 
@@ -39,3 +56,5 @@ function Form({ route, method }) {
         </form>
     )
 }
+
+export default Form
